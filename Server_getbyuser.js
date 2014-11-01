@@ -6,7 +6,7 @@ var app = express();
 
 app.get('/get', function(request, response) {
     var usr = request.query.usr;
-    Brot.find({user: "testuser"}, function (err, Brots) {
+    Brot.find({user: usr}, function (err, Brots) {
        console.log(Brots);
        response.json(Brots);
        });
