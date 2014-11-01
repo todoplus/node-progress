@@ -3,9 +3,6 @@ mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub')
 var Brot = require('./model/Brotschema.js');
 var express = require('express');
 var app = express();
-//Brot.find({user: "testuser"}, function (err, Brots) {
-//   console.log(Brots);
-//});
 
 app.get('/get', function(request, response) {
     var usr = request.query.usr;
