@@ -10,10 +10,8 @@ app.get('/get', function(request, response) {
        console.log(Brots);
        response.json(Brots);
        });
-    console.log("Got all Todos for the user " +usr);
+    console.log("Got all the above shown Todos for the user " +usr);
 });
-
-    
 
 app.listen(8080);
 console.log("node express app started at http://localhost:8080");

@@ -14,5 +14,14 @@ app.get('/put', function(request, response) {
 
 });
 
+app.get('/get', function(request, response) {
+    var usr = request.query.usr;
+    Brot.find({user: usr}, function (err, Brots) {
+       console.log(Brots);
+       response.json(Brots);
+       });
+    console.log("Got all Todos for the user " +usr);
+});
+
 app.listen(8080);
 console.log("node express app started at http://localhost:8080");
