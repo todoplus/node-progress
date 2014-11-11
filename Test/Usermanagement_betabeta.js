@@ -18,10 +18,10 @@ app.get('/get', function(request, response) {
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Get angefordert für den User " +usr);
        if (c < 1) {
-          console.log("User not found")
+          console.log("User not found");
        }
        
-       if (c = 1) {
+       if (c == 1) {
           console.log("Login ok");
           Todo.find({user: usr}, function (err, Todos) {
              console.log("Got all the following Todos for the user " +usr);
@@ -63,9 +63,10 @@ app.get('/put', function(request, response) {
        console.log("Put angefordert für den User " +usr);
        if (c < 1) {
           console.log("User not found")
+          
        }
        
-       if (c = 1) {
+       if (c == 1) {
           console.log("Login ok");
           var b = new Todo({name: text, user: usr});
           b.save();
