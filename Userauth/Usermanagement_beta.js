@@ -18,7 +18,8 @@ app.get('/get', function(request, response) {
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Get angefordert für den User " +usr);
        if (c < 1) {
-          console.log("User not found");
+          console.log("User not found or password incorrect");
+          response.end("User not found");
           console.log("");
        }
        
@@ -32,6 +33,7 @@ app.get('/get', function(request, response) {
        }
        else {
           console.log("Unexpected error, more than one user with your username");
+          response.end("Fatal error! :D");
        }
     });
 });
@@ -47,12 +49,13 @@ app.get('/createuser', function(request, response) {
           b.save();
           console.log("Added the user: " +b);
           console.log("");
-          response.end("I have added the following: " +b)
+          response.end("I have added the following: " +b);
        }
        else {
-          response.end("Your username is already taken!");
+          response.end("This username is already taken!");
           console.log("This username is already taken: " +usr);
           console.log("");
+          
        }
     });
 });
@@ -66,6 +69,7 @@ app.get('/put', function(request, response) {
        console.log("Put angefordert für den User " +usr);
        if (c < 1) {
           console.log("User not found");
+          response.end("Userauthentication not passed");
           console.log("");
        }
        
@@ -79,7 +83,8 @@ app.get('/put', function(request, response) {
        }
        
        else {
-          console.log("Unexpected error, more than one user with your username")
+          console.log("Unexpected error, more than one user with your username");
+          response.end("Fatal error...");
        }
     });
 });
@@ -93,6 +98,7 @@ app.get('/rmv', function(request, response) {
        console.log("Rmv angefordert für den User " +usr);
        if (c < 1) {
           console.log("User not found");
+          response.end("Something went wrong");
           console.log("");   
        }
        
@@ -106,10 +112,44 @@ app.get('/rmv', function(request, response) {
        }
        
        else {
-          console.log("Unexpected error, more than one user with your username")
+          console.log("Unexpected error, more than one user with your username");
+          response.end("Fatal error");
        }
     });
 });
+
+//update
+app.get('/update', function(request, response) {
+    var id = request.query.id;
+    var usr = request.query.usr;
+    var thepass = request.query.pass;
+    var updatedtext = request.query.new;
+    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+       console.log("Update angefordert für den User " +usr);
+       if (c < 1) {
+          console.log("User not found");
+          response.end("Something went wrong");
+          console.log("");   
+       }
+       
+       if (c == 1) {
+          console.log("Login ok");
+          Todo.findOne({ user: usr, _id:id }, function (err, doc){
+             doc.name = updatedtext;
+             doc.save();
+             response.json(doc);
+             console.log("Updated a Todo for the user " +usr); 
+             console.log("");  
+          });
+       }
+       
+       else {
+          console.log("Unexpected error, more than one user with your username");
+          response.end("Fatal error");
+       }
+    });
+});
+
 
 
 //run
