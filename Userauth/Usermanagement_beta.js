@@ -11,6 +11,34 @@ mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub')
 var User = require('./model/Userschema.js');
 var Todo = require('./model/Todoschema.js');
 
+//login
+app.get('/login', function(request, response) {
+    var usr = request.query.usr;
+    var thepass = crypto.createHash('md5').update(request.query.pass).digest('hex');
+    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+       console.log("Get angefordert für den User " +usr);
+       if (c < 1) {
+          console.log("User not found or password incorrect");
+          response.end("User not found");
+          console.log("");
+       }
+       
+       if (c == 1) {
+          console.log("Der User " +usr+" hat sich gerade eingeloggt");
+          console.log("");
+          User.find({username: usr, pass: thepass}, function (err, d) {
+             response.json(d);
+          });
+       }
+
+       else {
+          console.log("Unexpected error, more than one user with your username");
+          response.end("Fatal error! :D");
+       }
+    });
+});
+
+
 //get (nach usr)
 app.get('/get', function(request, response) {
     var usr = request.query.usr;
