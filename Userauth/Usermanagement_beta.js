@@ -77,7 +77,7 @@ app.get('/createuser', function(request, response) {
           b.save();
           console.log("Added the user: " +b);
           console.log("");
-          response.end("I have added the following: " +b);
+          response.json(b);
        }
        else {
           response.end("This username is already taken!");
