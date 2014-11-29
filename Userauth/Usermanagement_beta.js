@@ -16,7 +16,7 @@ app.get('/login', function(request, response) {
     var usr = request.query.usr;
     var thepass = crypto.createHash('md5').update(request.query.pass).digest('hex');
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
-       console.log("Get angefordert für den User " +usr);
+       console.log("Loginversuch für den Usernamen " +usr);
        if (c < 1) {
           console.log("User not found or password incorrect");
           response.end("User not found");
@@ -132,7 +132,7 @@ app.get('/rmv', function(request, response) {
        
        if (c == 1) {
           console.log("Login ok");
-          Todo.remove({_id:id}, function(err) {
+          Todo.remove({_id:id, user:usr}, function(err) {
              console.log("Removed the Todo with the id " + id);
              console.log("");
              response.end("Removed the Todo with the id " + id);
