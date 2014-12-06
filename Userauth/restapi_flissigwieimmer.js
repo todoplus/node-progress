@@ -16,6 +16,31 @@ mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub')
 var User = require('./model/Userschema2.js');
 var Todo = require('./model/Todoschema2.js');
 
+//User erstellen mit POST-Anfrage
+app.post('/api/create', function(req, res) {
+    var usr = req.body.usr;
+    var thepass = crypto.createHash('md5').update(req.body.pass).digest('hex');
+    var number = User.count({username: usr}, function(err, c) {
+       if (c < 1) {
+          var b = new User({ username: usr, pass: thepass});
+          b.save();
+          console.log("Added the user: " +b);
+          console.log("");
+          res.json(b);
+          res.end();
+       }
+       else {
+          res.json("This username is already taken!");
+          res.end();
+          console.log("This username is already taken: " +usr);
+          console.log("");
+          
+       }
+    });
+});
+
+
+
 // login über POST-Anfrage
 app.post('/api/login', function(req, res) {
    var usr = req.body.usr;
@@ -23,13 +48,6 @@ app.post('/api/login', function(req, res) {
 //Abgleich mit Login-Daten und c gleich wieviele User mit dieser Kombination
    var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Loginversuch für den Usernamen " +usr);
-       if (c < 1) {
-          console.log("User not found or password incorrect");
-          console.log("");
-          res.json("Login failed");
-          res.end();
-       }
-       
        if (c == 1) {
           console.log("Der User " +usr+" hat sich gerade eingeloggt");
           console.log("");
@@ -40,8 +58,8 @@ app.post('/api/login', function(req, res) {
        }
 
        else {
-          console.log("Unexpected error, more than one user with your username");
-          res.json("Fatal error! :D");
+          console.log("Wrong combination");
+          res.json("Wrong combination");
           res.end();
        }
     });
@@ -54,13 +72,6 @@ app.post('/api', function(req, res) {
     var text = req.body.text;
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Put angefordert für den User " +usr);
-       if (c < 1) {
-          console.log("User not found");
-          res.json("Userauthentication not passed");
-          res.end();
-          console.log("");
-       }
-       
        if (c == 1) {
           console.log("Login ok");
           var b = new Todo({name: text, user: usr});
@@ -72,8 +83,8 @@ app.post('/api', function(req, res) {
        }
        
        else {
-          console.log("Unexpected error, more than one user with your username");
-          res.json("Fatal error...");
+          console.log("Wrong combination");
+          res.json("Wrong combination");
           res.end();
        }
     });
@@ -89,13 +100,6 @@ app.put('/api/:Todo_id', function(req, res) {
 //login-überprüfung
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Put angefordert für den User " +usr);
-       if (c < 1) {
-          console.log("User not found");
-          res.json("Userauthentication not passed");
-          res.end();
-          console.log("");
-       }
-       
        if (c == 1) {
 //update, wenn login erfolgreich
           console.log("Login ok");
@@ -111,12 +115,39 @@ app.put('/api/:Todo_id', function(req, res) {
 
        
        else {
-          console.log("Unexpected error, more than one user with your username");
-          res.json("Fatal error...");
+          console.log("Wrong combination");
+          res.json("Wrong combination");
           res.end();
        }
     });
 });
+
+app.delete('/api/:Todo_id', function(req, res) {
+//authent und in body, id als param
+    var usr = req.body.usr;
+    var thepass = req.body.pass;
+    var id = req.params.Todo_id;
+//login-überprüfung
+    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+       console.log("Put angefordert für den User " +usr);
+       if (c == 1) {
+//update, wenn login erfolgreich
+          console.log("Login ok");
+          Todo.remove({_id:id, user:usr}, function(err) {
+             console.log("Removed the Todo with the id " + id);
+             console.log("");
+             res.json("Removed the Todo with the id " + id);
+             res.end();
+          });       
+       }
+       else {
+          console.log("Wrong combination");
+          res.json("Wrong combination");
+          res.end();
+       }
+    });
+});
+
 
 //get (nach usr)
 app.get('/api', function(req, res) {
@@ -124,12 +155,6 @@ app.get('/api', function(req, res) {
     var thepass = req.query.pass;
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Get angefordert für den User " +usr);
-       if (c < 1) {
-          console.log("User not found or password incorrect");
-          res.end("User not found");
-          console.log("");
-       }
-       
        if (c == 1) {
           console.log("Login ok");
           Todo.find({user: usr}, function (err, Todos) {
@@ -140,8 +165,8 @@ app.get('/api', function(req, res) {
           });
        }
        else {
-          console.log("Unexpected error, more than one user with your username");
-          res.end("Fatal error! :D");
+          console.log("Wrong combination");
+          res.end("Wrong combination");
        }
     });
 });
