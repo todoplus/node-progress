@@ -54,7 +54,8 @@ app.post('/api/create', function(req, res) {
 // login über POST-Anfrage
 app.post('/api/login', function(req, res) {
    var usr = req.body.usr;
-   var thepass = req.body.pass;
+//hash PW
+   var thepass = crypto.createHash('sha512').update(req.body.pass+salter).digest('hex');
 //Abgleich mit Login-Daten und c gleich wieviele User mit dieser Kombination
    var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("Loginversuch für den Usernamen " +usr);
@@ -187,7 +188,8 @@ app.get('/api', function(req, res) {
        }
        else {
           console.log(stat001);
-          res.end(stat001);
+          res.json(stat001);
+          res.end();
        }
     });
 });
