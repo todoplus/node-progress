@@ -1,9 +1,11 @@
 //Module laden
 var express = require('express');
 var crypto = require('crypto');
-var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+
+//app expressfunktionen zuweisen
+var app = express();
 
 //Status-Codes
 var stat000 = "000 - Login ok";
@@ -25,6 +27,7 @@ mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub')
 //MongoDB-Schemas importieren
 var User = require('./model/Userschema2.js');
 var Todo = require('./model/Todoschema2.js');
+
 
 //User erstellen mit POST-Anfrage
 app.post('/api/create', function(req, res) {
@@ -50,7 +53,6 @@ app.post('/api/create', function(req, res) {
        }
     });
 });
-
 
 
 // login über POST-Anfrage
@@ -79,6 +81,7 @@ app.post('/api/login', function(req, res) {
     });
 });
 
+
 //POST
 app.post('/api', function(req, res) {
     var usr = req.body.usr;
@@ -103,6 +106,7 @@ app.post('/api', function(req, res) {
        }
     });
 });
+
 
 //put
 app.put('/api/:Todo_id', function(req, res) {
@@ -136,17 +140,22 @@ app.put('/api/:Todo_id', function(req, res) {
     });
 });
 
-app.delete('/api/:Todo_id', function(req, res) {
+
+//delete
+app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
 //authent und in body, id als param
-    var usr = req.body.usr;
-    var thepass = req.body.pass;
-    var id = req.params.Todo_id;
+//body gad schinbar nöd
+//    var usr = req.body.usr;
+//    var thepass = req.body.pass;
+   var id = req.params.Todo_id;
+   var usr = req.params.User_name;
+   var thepass = req.params.User_pass;
 //login-überprüfung
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("DELETE angefordert für den User " +usr);
        if (c == 1) {
-//update, wenn login erfolgreich
           console.log(stat000);
+//check ob todo mit dere id vorhande für de user
           var number2 = Todo.count({user: usr, _id: id}, function(err, d) {
              if (d == 1) {
                 Todo.remove({_id:id, user:usr}, function(err) {
