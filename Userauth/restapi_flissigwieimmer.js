@@ -36,8 +36,10 @@ app.post('/api/create', function(req, res) {
           b.save();
           console.log("Added the user: " +b);
           console.log("");
-          res.json(b);
-          res.end();
+          User.find({username: usr, pass: thepass}, function (err, d) {
+             res.json(d);
+             res.end();
+          });
        }
        else {
           res.json(stat002);
