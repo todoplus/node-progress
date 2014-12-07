@@ -152,16 +152,16 @@ app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
    var thepass = req.params.User_pass;
 //login-überprüfung
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
-       console.log("DELETE angefordert für den User " +usr);
+       console.log("DELETE angefordert für den User " +usr +" für die ID " +id);
        if (c == 1) {
           console.log(stat000);
 //check ob todo mit dere id vorhande für de user
           var number2 = Todo.count({user: usr, _id: id}, function(err, d) {
              if (d == 1) {
                 Todo.remove({_id:id, user:usr}, function(err) {
-                   console.log("Removed the Todo with the id " + id);
+                   console.log(stat003);
                    console.log("");
-                   res.json("Removed the Todo with the id " + id);
+                   res.json(stat003);
                    res.end();
                 });
              }
