@@ -161,10 +161,10 @@ app.put('/api/:Todo_id', function(req, res) {
                       res.end();
                    }
 
-          });
+               });
+             }
+        });
        }
-
-       
        else {
           console.log(stat001);
           res.json(stat001);
@@ -230,9 +230,6 @@ app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
 app.get('/api', function(req, res) {
     var usr = req.query.usr;
     var thepass = req.query.pass;
-//    var shared1 = req.query.shared1;
-//    var shared2 = req.query.shared2;
-//    var shared3 = req.query.shared3;
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("GET angefordert für den User " +usr);
        if (c == 1) {
@@ -245,16 +242,7 @@ app.get('/api', function(req, res) {
                 res.end();
              });
           });
-          //Todo.find({user:shared1, sharedw: usr}, function (err, f) {
-          //   res.write(f);
-          //});
-          //Todo.find({user:shared2, sharedw: usr}, function (err, g) {
-          //   res.write(g);
-          //});
-          //Todo.find({user:shared1, sharedw: usr}, function (err, h) {
-          //   res.write(h);
-          //});
-          //res.end();
+
        }
        else {
           console.log(stat001);
