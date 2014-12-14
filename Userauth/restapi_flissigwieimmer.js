@@ -39,17 +39,25 @@ app.post('/api/create', function(req, res) {
           b.save();
           console.log("Added the user: " +b);
           console.log("");
-          User.find({username: usr, pass: thepass}, function (err, d) {
-             res.json(d);
-             res.end();
-          });
+          res.json(b);
+          //var number2 = User.count({username: usr, pass: thepass}, function(err, f) {
+          //   if (f == 1) {
+          //      User.find({username: usr, pass: thepass}, function (err, g) {
+          //         res.json(g);
+          //         res.end();
+          //      });
+          //   }
+          //   else {
+          //      res.json(stat001);
+          //      res.end();
+          //   }  
+          //});
        }
        else {
           res.json(stat002);
-          res.end();
+          //res.end();
           console.log("This username was requested and is already taken: " +usr);
-          console.log("");
-          
+          console.log(""); 
        }
     });
 });
@@ -68,7 +76,7 @@ app.post('/api/login', function(req, res) {
           console.log("");
           User.find({username: usr, pass: thepass}, function (err, d) {
              res.json(d);
-             res.end();
+             //res.end();
           });
        }
 
@@ -76,7 +84,7 @@ app.post('/api/login', function(req, res) {
           console.log(stat001);
           console.log("");
           res.json(stat001);
-          res.end();
+          //res.end();
        }
     });
 });
@@ -87,11 +95,12 @@ app.post('/api', function(req, res) {
     var usr = req.body.usr;
     var thepass = req.body.pass;
     var text = req.body.text;
+    var shared = req.body.shared;
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("POST angefordert für den User " +usr);
        if (c == 1) {
           console.log(stat000);
-          var b = new Todo({name: text, user: usr});
+          var b = new Todo({name: text, user: usr, sharedw: shared});
           b.save();
           console.log("Added" + b);
           console.log("");
@@ -114,6 +123,7 @@ app.put('/api/:Todo_id', function(req, res) {
     var usr = req.body.usr;
     var thepass = req.body.pass;
     var updatedtext = req.body.text;
+    var shared = req.body.shared;
     var id = req.params.Todo_id;
 //login-überprüfung
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
@@ -123,6 +133,7 @@ app.put('/api/:Todo_id', function(req, res) {
           console.log(stat000);
           Todo.findOne({ user: usr, _id:id }, function (err, doc){
              doc.name = updatedtext;
+//             doc.sharedw = shared;
              doc.save();
              res.json(doc);
              res.end();
@@ -186,6 +197,9 @@ app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
 app.get('/api', function(req, res) {
     var usr = req.query.usr;
     var thepass = req.query.pass;
+//    var shared1 = req.query.shared1;
+//    var shared2 = req.query.shared2;
+//    var shared3 = req.query.shared3;
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
        console.log("GET angefordert für den User " +usr);
        if (c == 1) {
@@ -193,9 +207,18 @@ app.get('/api', function(req, res) {
           Todo.find({user: usr}, function (err, Todos) {
              console.log("Got all the Todos for the user " +usr);
              console.log("");
-             res.json(Todos);
-             res.end();
+             res.write(Todos);
           });
+          //Todo.find({user:shared1, sharedw: usr}, function (err, f) {
+          //   res.write(f);
+          //});
+          //Todo.find({user:shared2, sharedw: usr}, function (err, g) {
+          //   res.write(g);
+          //});
+          //Todo.find({user:shared1, sharedw: usr}, function (err, h) {
+          //   res.write(h);
+          //});
+          res.end();
        }
        else {
           console.log(stat001);
