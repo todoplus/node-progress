@@ -144,7 +144,7 @@ app.put('/api/:Todo_id', function(req, res) {
              else {
                 var number2 = Todo.count({sharedw: usr, _id: id}, function(err, f) {
                    if (f == 1) {
-                      Todo.findOne({ user: usr, _id:id }, function (err, bli){
+                      Todo.findOne({ sharedw: usr, _id:id }, function (err, bli){
                          bli.name = updatedtext;
                          bli.save();
                          res.json(Array(bli));
