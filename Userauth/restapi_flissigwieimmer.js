@@ -177,13 +177,25 @@ app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
                 });
              }
              else {
-                console.log(stat004);
-                console.log("");
-                res.json(stat004);
-                res.end();
+                var number2 = Todo.count({sharedw: usr, _id: id}, function(err, f) {
+                   if (f == 1) {
+                      Todo.remove({_id:id, sharedw: usr}, function(err) {
+                         console.log(stat003);
+                         console.log("");
+                         res.json(stat003);
+                         res.end();
+                      });            
+                   }
+                   else {
+                      console.log(stat004);
+                      console.log("");
+                      res.json(stat004);
+                      res.end();
+                   }
+                });       
              }
-          });       
-       }
+          });
+       }                     
        else {
           console.log(stat001);
           res.json(stat001);
@@ -207,7 +219,11 @@ app.get('/api', function(req, res) {
           Todo.find({user: usr}, function (err, Todos) {
              console.log("Got all the Todos for the user " +usr);
              console.log("");
-             res.write(Todos);
+             Todo.find({sharedw: usr}, function (err, Todos2) {
+                console.log("Got all the shared Todos for the user " +usr);
+                res.json(Todos+Todos2);
+                res.end();
+             });
           });
           //Todo.find({user:shared1, sharedw: usr}, function (err, f) {
           //   res.write(f);
@@ -218,7 +234,7 @@ app.get('/api', function(req, res) {
           //Todo.find({user:shared1, sharedw: usr}, function (err, h) {
           //   res.write(h);
           //});
-          res.end();
+          //res.end();
        }
        else {
           console.log(stat001);
