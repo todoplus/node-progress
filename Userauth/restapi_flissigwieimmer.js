@@ -220,7 +220,7 @@ app.get('/api', function(req, res) {
              console.log("Got all the Todos for the user " +usr);
              Todo.find({sharedw: usr}, function (err, Todos2) {
                 console.log("Got all the shared Todos for the user " +usr);
-                res.json(Todos,Todos2);
+                res.json((Todos,Todos2));
                 res.end();
              });
           });
