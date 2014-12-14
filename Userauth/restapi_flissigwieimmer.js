@@ -39,7 +39,7 @@ app.post('/api/create', function(req, res) {
           b.save();
           console.log("Added the user: " +b);
           console.log("");
-          res.json(b);
+          res.json(Array(b));
           //var number2 = User.count({username: usr, pass: thepass}, function(err, f) {
           //   if (f == 1) {
           //      User.find({username: usr, pass: thepass}, function (err, g) {
@@ -76,7 +76,7 @@ app.post('/api/login', function(req, res) {
           console.log("");
           User.find({username: usr, pass: thepass}, function (err, d) {
              res.json(d);
-             //res.end();
+             res.end();
           });
        }
 
@@ -84,7 +84,7 @@ app.post('/api/login', function(req, res) {
           console.log(stat001);
           console.log("");
           res.json(stat001);
-          //res.end();
+          res.end();
        }
     });
 });
@@ -104,7 +104,7 @@ app.post('/api', function(req, res) {
           b.save();
           console.log("Added" + b);
           console.log("");
-          res.json(b);
+          res.json(Array(b));
           res.end();
        }
        
@@ -123,7 +123,7 @@ app.put('/api/:Todo_id', function(req, res) {
     var usr = req.body.usr;
     var thepass = req.body.pass;
     var updatedtext = req.body.text;
-    var shared = req.body.shared;
+//    var shared = req.body.shared;
     var id = req.params.Todo_id;
 //login-überprüfung
     var number = User.count({username: usr, pass: thepass}, function(err, c) {
@@ -135,7 +135,7 @@ app.put('/api/:Todo_id', function(req, res) {
              doc.name = updatedtext;
 //             doc.sharedw = shared;
              doc.save();
-             res.json(doc);
+             res.json(Array(doc));
              res.end();
              console.log("Updated a Todo for the user " +usr); 
              console.log("");  
@@ -218,10 +218,9 @@ app.get('/api', function(req, res) {
           console.log(stat000);
           Todo.find({user: usr}, function (err, Todos) {
              console.log("Got all the Todos for the user " +usr);
-             console.log("");
              Todo.find({sharedw: usr}, function (err, Todos2) {
                 console.log("Got all the shared Todos for the user " +usr);
-                res.json(Todos+Todos2);
+                res.json(Array(Todos+Todos2));
                 res.end();
              });
           });
