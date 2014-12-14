@@ -133,19 +133,16 @@ app.put('/api/:Todo_id', function(req, res) {
 //update, wenn login erfolgreich
           console.log(stat000);
           Todo.findOne({ user: usr, _id:id }, function (err, doc){
-             doc.name = updatedtext;
-//             doc.sharedw = shared;
-             doc.save();
-             res.json(Array(doc));
-             res.end();
-             console.log("Updated a Todo for the user " +usr); 
-             console.log("");  
-          });
-       }
-
-       
-       else {
-          var number2 = Todo.count({sharedw: usr, _id: id}, function(err, f) {
+             if (doc == 1) {
+                doc.name = updatedtext;
+                doc.save();
+                res.json(Array(doc));
+                res.end();
+                console.log("Updated a Todo for the user " +usr); 
+                console.log("");  
+             }
+             else {
+                var number2 = Todo.count({sharedw: usr, _id: id}, function(err, f) {
                    if (f == 1) {
                       Todo.findOne({ user: usr, _id:id }, function (err, doc){
                          doc.name = updatedtext;
@@ -163,9 +160,16 @@ app.put('/api/:Todo_id', function(req, res) {
                       res.json(stat004);
                       res.end();
                    }
-          });       
+
+          });
        }
-    });
+
+       
+       else {
+          console.log(stat001);
+          res.json(stat001);
+          res.end();
+       }
 });
 
 
