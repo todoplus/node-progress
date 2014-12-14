@@ -132,7 +132,7 @@ app.put('/api/:Todo_id', function(req, res) {
        if (c == 1) {
 //update, wenn login erfolgreich
           console.log(stat000);
-          Todo.findOne({ user: usr, _id:id }, function (err, doc){
+          Todo.findOne({ user: usr, _id:id }, function (err, doc) {
              if (doc == 1) {
                 doc.name = updatedtext;
                 doc.save();
@@ -170,6 +170,7 @@ app.put('/api/:Todo_id', function(req, res) {
           res.json(stat001);
           res.end();
        }
+    });                         
 });
 
 
@@ -242,7 +243,6 @@ app.get('/api', function(req, res) {
                 res.end();
              });
           });
-
        }
        else {
           console.log(stat001);
