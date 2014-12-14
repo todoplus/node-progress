@@ -144,10 +144,10 @@ app.put('/api/:Todo_id', function(req, res) {
              else {
                 var number2 = Todo.count({sharedw: usr, _id: id}, function(err, f) {
                    if (f == 1) {
-                      Todo.findOne({ user: usr, _id:id }, function (err, doc){
-                         doc.name = updatedtext;
-                         doc.save();
-                         res.json(Array(doc));
+                      Todo.findOne({ user: usr, _id:id }, function (err, bli){
+                         bli.name = updatedtext;
+                         bli.save();
+                         res.json(Array(bli));
                          res.end();
                          console.log("Updated a shared Todo for the user " +usr); 
                          console.log("");  
