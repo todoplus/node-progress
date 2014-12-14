@@ -3,6 +3,7 @@ var express = require('express');
 var crypto = require('crypto');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var us = require('underscore');
 
 //app expressfunktionen zuweisen
 var app = express();
@@ -220,7 +221,7 @@ app.get('/api', function(req, res) {
              console.log("Got all the Todos for the user " +usr);
              Todo.find({sharedw: usr}, function (err, Todos2) {
                 console.log("Got all the shared Todos for the user " +usr);
-                res.json((Todos,Todos2));
+                res.json(us.extend(Todos,Todos2));
                 res.end();
              });
           });
