@@ -4,6 +4,7 @@ var crypto = require('crypto');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var us = require('underscore');
+var rs = require('randomstring');
 
 //app expressfunktionen zuweisen
 var app = express();
@@ -15,9 +16,6 @@ var stat002 = "002 - Username already taken";
 var stat003 = "003 - Removing ok";
 var stat004 = "004 - No Todo with this ID found for you";
 
-//SALT-Encryption
-var salter="Salz123Stange";
-
 //body-parser Konfiguration
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -28,35 +26,31 @@ mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub')
 //MongoDB-Schemas importieren
 var User = require('./model/Userschema2.js');
 var Todo = require('./model/Todoschema2.js');
-
+var SSID = require('./model/SessionSchema.js');
 
 //User erstellen mit POST-Anfrage
 app.post('/api/create', function(req, res) {
     var usr = req.body.usr;
-    var thepass = crypto.createHash('sha512').update(req.body.pass+salter).digest('hex');
+    var device1 = req.body.device;
+//SALT'er
+    var salter1 = rs.generate();
+    var thepass = crypto.createHash('sha512').update(req.body.pass+salter1).digest('hex');
     var number = User.count({username: usr}, function(err, c) {
        if (c < 1) {
-          var b = new User({ username: usr, pass: thepass});
+          var b = new User({ username: usr, pass: thepass, salter: salter1});
           b.save();
           console.log("Added the user: " +b);
           console.log("");
-          res.json(Array(b));
-          //var number2 = User.count({username: usr, pass: thepass}, function(err, f) {
-          //   if (f == 1) {
-          //      User.find({username: usr, pass: thepass}, function (err, g) {
-          //         res.json(g);
-          //         res.end();
-          //      });
-          //   }
-          //   else {
-          //      res.json(stat001);
-          //      res.end();
-          //   }  
-          //});
+          //generate SSID for this user
+          var salter2 = rs.generate();
+          var thepass2 = crypto.createHash('sha512').update(device1+salter2).digest('hex');
+          var d = new SSID({username: usr, salter: salter2, ssid: thepass2, device: device1});
+          res.json(Array({"user":usr, "ssid":d.ssid}));
+	      res.end();
        }
        else {
           res.json(stat002);
-          //res.end();
+          res.end();
           console.log("This username was requested and is already taken: " +usr);
           console.log(""); 
        }
@@ -67,29 +61,43 @@ app.post('/api/create', function(req, res) {
 // login über POST-Anfrage
 app.post('/api/login', function(req, res) {
    var usr = req.body.usr;
-//hash PW
-   var thepass = crypto.createHash('sha512').update(req.body.pass+salter).digest('hex');
+   var device1 = req.body.device;
+   var thepass1 = req.body.pass;
 //Abgleich mit Login-Daten und c gleich wieviele User mit dieser Kombination
-   var number = User.count({username: usr, pass: thepass}, function(err, c) {
-       console.log("Loginversuch für den Usernamen " +usr);
-       if (c == 1) {
-          console.log(stat000);
-          console.log("");
-          User.find({username: usr, pass: thepass}, function (err, d) {
-             res.json(d);
-             res.end();
-          });
-       }
+   User.findOne({username:usr}, function(err, e) {       
+      var salter1 = e.salter;
+      var thepass = crypto.createHash('sha512').update(thepass1+salter1).digest('hex');
+      var number = User.count({username: usr, pass: thepass}, function(err, c) {
+         console.log("Loginversuch für den Usernamen " +usr);
+         if (c == 1) {
+            console.log(stat000);
+            console.log("");
+            SSID.count({username: usr, device: device1}, function (err, d) {
+               if (d == 1) {
+                  SSID.findOne({username: usr, device: device1}, function (err, f) {
+                     res.json(Array({"user":usr, "ssid":f.ssid}));
+                     res.end();
+                  });
+               }
+               else {
+                  var salter2 = rs.generate();
+                  var thepass2 = crypto.createHash('sha512').update(device1+salter2).digest('hex');
+                  var g = new SSID({username: usr, salter: salter2, ssid: thepass2, device: device1});
+                  res.json(Array({"user":usr, "ssid":g.ssid}));
+                  res.end();
+               }
+            });
+         }
 
-       else {
-          console.log(stat001);
-          console.log("");
-          res.json(stat001);
-          res.end();
-       }
-    });
+         else {
+            console.log(stat001);
+            console.log("");
+            res.json(stat001);
+            res.end();
+         }
+      });
+   });
 });
-
 
 //POST
 app.post('/api', function(req, res) {
