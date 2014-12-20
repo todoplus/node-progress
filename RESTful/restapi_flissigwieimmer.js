@@ -44,7 +44,8 @@ app.post('/api/create', function(req, res) {
           //generate SSID for this user
           var salter2 = rs.generate();
           var thepass2 = crypto.createHash('sha512').update(device1+salter2).digest('hex');
-          var d = new SSID({username: usr, salter: salter2, ssid: thepass2, device: device1});
+          var d = new SSID({username: usr, device: device1, salter: salter2, ssid: thepass2});
+          d.save();
           res.json(Array({"user":usr, "ssid":d.ssid}));
 	      res.end();
        }
@@ -72,8 +73,8 @@ app.post('/api/login', function(req, res) {
          if (c == 1) {
             console.log(stat000);
             console.log("");
-            SSID.count({username: usr, device: device1}, function (err, d) {
-               if (d == 1) {
+            SSID.count({username: usr, device: device1}, function (err, z) {
+               if (z == 1) {
                   SSID.findOne({username: usr, device: device1}, function (err, f) {
                      res.json(Array({"user":usr, "ssid":f.ssid}));
                      res.end();
@@ -83,6 +84,7 @@ app.post('/api/login', function(req, res) {
                   var salter2 = rs.generate();
                   var thepass2 = crypto.createHash('sha512').update(device1+salter2).digest('hex');
                   var g = new SSID({username: usr, salter: salter2, ssid: thepass2, device: device1});
+                  g.save();
                   res.json(Array({"user":usr, "ssid":g.ssid}));
                   res.end();
                }
