@@ -1,0 +1,17 @@
+{
+  "name": "Todoplus",
+  "version": "0.0.0",
+  "dependencies": {
+    "express": "~4.10.6",
+    "crypto": "~0.0.3",
+    "mongoose": "~3.8.21",
+    "body-parser": "~1.10.0",
+    "underscore": "~1.7.0",   
+    "randomstring": "~1.0.3"
+    
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }
+}
