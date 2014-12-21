@@ -104,10 +104,11 @@ app.post('/api/login', function(req, res) {
 //POST
 app.post('/api', function(req, res) {
     var usr = req.body.usr;
-    var thepass = req.body.pass;
+    var ssid = req.body.ssid;
     var text = req.body.text;
+    var device = req.body.device;
     var shared = req.body.shared;
-    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+    var number = SSID.count({username: usr, ssid: ssid, device:device}, function(err, c) {
        console.log("POST angefordert für den User " +usr);
        if (c == 1) {
           console.log(stat000);
@@ -132,12 +133,13 @@ app.post('/api', function(req, res) {
 app.put('/api/:Todo_id', function(req, res) {
 //authent und text in body, id als param
     var usr = req.body.usr;
-    var thepass = req.body.pass;
+    var ssid = req.body.ssid;
+    var device = req.body.device;
     var updatedtext = req.body.text;
 //    var shared = req.body.shared;
     var id = req.params.Todo_id;
 //login-überprüfung
-    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+    var number = SSID.count({username: usr, ssid: ssid, device: device}, function(err, c) {
        console.log("PUT angefordert für den User " +usr);
        if (c == 1) {
 //update, wenn login erfolgreich
@@ -187,16 +189,17 @@ app.put('/api/:Todo_id', function(req, res) {
 
 
 //delete
-app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
+app.delete('/api/:Todo_id/:User_name/:User_ssid/:User_device', function(req, res) {
 //authent und in body, id als param
 //body gad schinbar nöd
 //    var usr = req.body.usr;
 //    var thepass = req.body.pass;
    var id = req.params.Todo_id;
    var usr = req.params.User_name;
-   var thepass = req.params.User_pass;
+   var ssid = req.params.User_ssid;
+   var device = req.params.User_device
 //login-überprüfung
-    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+    var number = SSID.count({username: usr, ssid: ssid, device: device}, function(err, c) {
        console.log("DELETE angefordert für den User " +usr +" für die ID " +id);
        if (c == 1) {
           console.log(stat000);
@@ -242,8 +245,9 @@ app.delete('/api/:Todo_id/:User_name/:User_pass', function(req, res) {
 //get (nach usr)
 app.get('/api', function(req, res) {
     var usr = req.query.usr;
-    var thepass = req.query.pass;
-    var number = User.count({username: usr, pass: thepass}, function(err, c) {
+    var ssid = req.query.ssid;
+    var device = req.query.device;
+    var number = SSID.count({username: usr, ssid: ssid, device: device}, function(err, c) {
        console.log("GET angefordert für den User " +usr);
        if (c == 1) {
           console.log(stat000);
