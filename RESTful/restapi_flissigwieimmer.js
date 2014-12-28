@@ -16,6 +16,7 @@ var stat002 = "002 - Username already taken";
 var stat003 = "003 - Removing ok";
 var stat004 = "004 - No Todo with this ID found for you";
 var stat005 = "005 - Shared User doesn't exist";
+var stat006 = "006 - Logout ok";
 
 //body-parser Konfiguration
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -112,6 +113,29 @@ app.post('/api/login', function(req, res) {
    });
 });
 
+//Logout über Post-Anfrage
+app.post('/api/logout', function(req, res) {
+    var ssid = req.body.ssid;
+    var number = SSID.count({ssid: ssid}, function(err, c) {
+       if (c == 1) {
+          console.log(stat000);
+          SSID.remove({ssid:ssid}, function (err) {
+             console.log(stat006);
+             console.log("");
+             res.json(stat006);
+             res.end();
+          });
+       }
+       else {
+          console.log(stat001);
+          console.log("");
+          res.json(stat001);
+          res.end();
+       }
+    });
+});
+
+
 //POST
 app.post('/api', function(req, res) {
     var ssid = req.body.ssid;
@@ -122,21 +146,22 @@ app.post('/api', function(req, res) {
           SSID.findOne({ssid:ssid}, function(err, e) {  
              console.log("Der User " +e.username+ " hat POST angefordert");
              console.log(stat000);
-//wird doch nonig erkennt ob alli shared user existiered -> isch das nötig? :(
-//             User.count({username:shared}, function(err, f) {  
-//                if (f == 1) {
-                   var b = new Todo({name: text, user: e.username, sharedw: new RegExp(e.username+";", "i")});
-                   b.save();
-                   console.log("Added" + b);
-                   console.log("");
-                   res.json(Array(b));
-                   res.end();   
-//                }
-//                else {
-//                   res.json(stat005);
-//                   res.end();
-//                }   
-//             });
+             if (typeof shared!=='undefined') {
+                var b = new Todo({name: text, user: e.username, sharedw: shared});
+                b.save();
+                console.log("Added" + b);
+                console.log("");
+                res.json(Array(b));
+                res.end();   
+             }
+             else {
+                var ab = new Todo({name: text, user: e.username, sharedw: ""});
+                ab.save();
+                console.log("Added" + ab);
+                console.log("");
+                res.json(Array(ab));
+                res.end();  
+             }
           });  
        }
        
@@ -268,11 +293,12 @@ app.get('/api', function(req, res) {
              console.log("Der User "+e.username+" hat GET angefordert");
              Todo.find({user: e.username}, function (err, Todos) {
                 console.log("Got all the Todos for the user " +e.username);
-//"user;" muess Teil v. String si -> multisharing möglich
+                console.log(Todos);
+// user semikolon muess Teil vum String si demit multisharing möglich
                 Todo.find({sharedw: new RegExp(e.username+";", "i")}, function(err, Todos2) {
                    console.log("Got all the shared Todos for the user " +e.username);
-                   res.json(us.extend(Todos,Todos2));
-                   res.end();
+                   console.log(Todos2);
+                   res.json(Todos.concat(Todos2));
                 });
              });
           });   
