@@ -15,6 +15,7 @@ var stat001 = "001 - Login failed";
 var stat002 = "002 - Username already taken";
 var stat003 = "003 - Removing ok";
 var stat004 = "004 - No Todo with this ID found for you";
+var stat005 = "005 - Shared User doesn't exist";
 
 //body-parser Konfiguration
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -121,12 +122,21 @@ app.post('/api', function(req, res) {
           SSID.findOne({ssid:ssid}, function(err, e) {  
              console.log("Der User " +e.username+ " hat POST angefordert");
              console.log(stat000);
-             var b = new Todo({name: text, user: e.username, sharedw: shared});
-             b.save();
-             console.log("Added" + b);
-             console.log("");
-             res.json(Array(b));
-             res.end();
+//wird doch nonig erkennt ob alli shared user existiered -> isch das nötig? :(
+//             User.count({username:shared}, function(err, f) {  
+//                if (f == 1) {
+                   var b = new Todo({name: text, user: e.username, sharedw: new RegExp(e.username+";", "i")});
+                   b.save();
+                   console.log("Added" + b);
+                   console.log("");
+                   res.json(Array(b));
+                   res.end();   
+//                }
+//                else {
+//                   res.json(stat005);
+//                   res.end();
+//                }   
+//             });
           });  
        }
        
@@ -165,9 +175,9 @@ app.put('/api/:Todo_id', function(req, res) {
                 });
              }
              else {
-                var number2 = Todo.count({sharedw: e.username, _id: id}, function(err, f) {
+                var number2 = Todo.count({sharedw: new RegExp(e.username+";", "i"), _id: id}, function(err, f) {
                    if (f == 1) {
-                      Todo.findOne({ sharedw: e.username, _id:id }, function (err, j){
+                      Todo.findOne({sharedw: new RegExp(e.username+";", "i"), _id:id }, function (err, j){
                          j.name = updatedtext;
                          j.save();
                          res.json(Array(j));
@@ -219,9 +229,9 @@ app.delete('/api/:Todo_id/:User_ssid/', function(req, res) {
                     });
                 }
                 else {
-                    var number2 = Todo.count({sharedw: e.username, _id: id}, function(err, f) {
+                    var number2 = Todo.count({sharedw: new RegExp(e.username+";", "i"), _id: id}, function(err, f) {
                         if (f == 1) {
-                            Todo.remove({_id:id, sharedw: e.username}, function(err) {
+                            Todo.remove({_id:id, sharedw: new RegExp(e.username+";", "i")}, function(err) {
                                console.log(stat003);
                                console.log("");
                                res.json(stat003);
@@ -258,7 +268,8 @@ app.get('/api', function(req, res) {
              console.log("Der User "+e.username+" hat GET angefordert");
              Todo.find({user: e.username}, function (err, Todos) {
                 console.log("Got all the Todos for the user " +e.username);
-                Todo.find({sharedw: e.username}, function (err, Todos2) {
+//"user;" muess Teil v. String si -> multisharing möglich
+                Todo.find({sharedw: new RegExp(e.username+";", "i")}, function(err, Todos2) {
                    console.log("Got all the shared Todos for the user " +e.username);
                    res.json(us.extend(Todos,Todos2));
                    res.end();
@@ -275,5 +286,5 @@ app.get('/api', function(req, res) {
 });
 
 
-app.listen(8080);
-console.log("Running on Port 8080");
+app.listen(process.env.PORT||8080);
+console.log("Running on the Server and on Port 8080");
