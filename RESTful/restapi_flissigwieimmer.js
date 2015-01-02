@@ -15,11 +15,14 @@ var stat001 = "001 - Login failed";
 var stat002 = "002 - Username already taken";
 var stat003 = "003 - Removing ok";
 var stat004 = "004 - No Todo with this ID found for you";
-var stat005 = "005 - Shared User doesn't exist";
+var stat005 = "005 - User has no Todos";
 var stat006 = "006 - Logout ok";
+//chund evtl. no...
+//var stat007 = "007 - Shared User doesn't exist";
+
 
 //body-parser Konfiguration
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 //DB-Connection aufbauen
@@ -242,7 +245,7 @@ app.delete('/api/:Todo_id/:User_ssid/', function(req, res) {
     if (c == 1) {
             SSID.findOne({ssid:ssid}, function(err, e) {  
             console.log(stat000);
-            console.log("Der User" +e.username+ " hat PUT angefordert");
+            console.log("Der User" +e.username+" hat DELETE angefordert");
 //check ob todo mit dere id vorhande für de user
             var number2 = Todo.count({user: e.username, _id: id}, function(err, d) {
                 if (d == 1) {
@@ -291,14 +294,25 @@ app.get('/api', function(req, res) {
           SSID.findOne({ssid:ssid}, function(err, e) {  
              console.log(stat000);
              console.log("Der User "+e.username+" hat GET angefordert");
-             Todo.find({user: e.username}, function (err, Todos) {
-                console.log("Got all the Todos for the user " +e.username);
-                console.log(Todos);
-// user semikolon muess Teil vum String si demit multisharing möglich
-                Todo.find({sharedw: new RegExp(e.username+";", "i")}, function(err, Todos2) {
-                   console.log("Got all the shared Todos for the user " +e.username);
-                   console.log(Todos2);
-                   res.json(Todos.concat(Todos2));
+             Todo.count({user: e.username}, function (err, count1) {
+                Todo.count({sharedw: new RegExp(e.username+";", "i")}, function(err, count2) {
+                   if ((count1+count2) == 0) {
+                      console.log(stat005);
+                      console.log("");
+                      res.json(stat005);
+                      res.end();
+                   }
+                   else {
+                      Todo.find({user: e.username}, function (err, Todos) {
+                         console.log("Got all the Todos for the user " +e.username);
+// "user;"muess Teil vum String si demit multisharing möglich
+                         Todo.find({sharedw: new RegExp(e.username+";", "i")}, function(err, Todos2) {
+                            console.log("Got all the shared Todos for the user " +e.username);
+	                    var allTodos = Todos.concat(Todos2);
+                            res.json(allTodos.sort({Date: -1}));
+                         });
+                      });
+                   }
                 });
              });
           });   
