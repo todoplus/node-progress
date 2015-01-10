@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 
 //DB-Connection aufbauen
-mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub');
+mongoose.connect('mongodb://Todoplus:7sijab3a3@proximus.modulusmongo.net:27017/hI2dyxej');
 
 //MongoDB-Schemas importieren
 var User = require('./model/Userschema2.js');

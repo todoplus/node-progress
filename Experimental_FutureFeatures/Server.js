@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var us = require('underscore');
 var rs = require('randomstring');
+var async = require('async');
 
 //app expressfunktionen zuweisen
 var app = express();
@@ -305,24 +306,26 @@ app.get('/api', function(req, res) {
                       res.end();
                    }
                    else {
+                      var bug = [];
                       User.findOne({username: e.username}, function (err, usr) {
                          var shareds = usr.white;
                          var shareds= shareds.split(/;/);
                          console.log(shareds);
-                         var bug = [];
                          console.log(bug);
-                         for(var i = 0; i < shareds.length;i++){
-                            var b = "Todos"+i;
-                            Todo.find({sharedw: new RegExp(shareds[i]+";", "i")}, function(err, b) {
-                               console.log(b);
-                               Todosarray.concat(b);
+                         shareds.forEach(function (jedes) {
+                            Todo.find({sharedw: new RegExp(jedes+";", "i")}, function(err, b) {
+                               bug = bug.concat(b);
+                               console.log(bug);
                             });
-                         }                        
-                         res.json(Todosaray);
-                         res.end();
-                         console.log("Get sett gange sii");
-                         console.log("");
+                         });
+                         setTimeout(function () {
+                           res.json(bug);
+                           res.end();
+                           console.log("jetzt??");
+                           console.log(bug);
+                         },500);
                       });
+                      
                    }
                 });
              });
