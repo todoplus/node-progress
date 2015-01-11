@@ -5,8 +5,6 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var us = require('underscore');
 var rs = require('randomstring');
-var async = require('async');
-
 //app expressfunktionen zuweisen
 var app = express();
 
@@ -296,39 +294,39 @@ app.get('/api', function(req, res) {
           SSID.findOne({ssid:ssid}, function(err, e) {  
              console.log(stat000);
              console.log("Der User "+e.username+" hat GET angefordert");
-             Todo.count({user: e.username}, function (err, count1) {
-                Todo.count({sharedw: new RegExp(e.username+";", "i")}, function(err, count2) {
-//Achtung! Server sendet evtl. wieder leeres Array, wenn zwar shared Todos existieren, aber nicht in Whitelist sind!
-                   if ((count1+count2) == 0) {
+//Achtung! Server sendet evtl. wieder leeres Array, wenn zwar shared Todos existieren, aber nicht in Whitelist sind! -> sett au behobe si, partyy
+             var bug = [];
+             User.findOne({username: e.username}, function (err, usr) {
+                var shareds = usr.white;
+                var shareds= shareds.split(/;/); 
+                shareds.forEach(function (jedes) {
+                   Todo.find({user: jedes, sharedw: new RegExp(e.username+";", "i")}, function (err, b) {
+                      bug = bug.concat(b);
+                   });
+                });
+                Todo.find({user: e.username}, function (err, Todos) {
+                   bug = bug.concat(Todos);
+                });
+                setTimeout(function () {
+//Hie hani Problem bim sortiere... nümme :o
+                   var sorted = us(bug).sortBy(function(bug){
+                      return [bug.prio, bug.Date];
+                   });
+//Hie Überprüefig ob kei Todos -> wenn kei ischs Array leer
+                   if (sorted == "") {
                       console.log(stat005);
                       console.log("");
                       res.json(stat005);
                       res.end();
                    }
                    else {
-                      var bug = [];
-                      User.findOne({username: e.username}, function (err, usr) {
-                         var shareds = usr.white;
-                         var shareds= shareds.split(/;/);
-                         console.log(shareds);
-                         console.log(bug);
-                         shareds.forEach(function (jedes) {
-                            Todo.find({sharedw: new RegExp(jedes+";", "i")}, function(err, b) {
-                               bug = bug.concat(b);
-                               console.log(bug);
-                            });
-                         });
-                         setTimeout(function () {
-                           res.json(bug);
-                           res.end();
-                           console.log("jetzt??");
-                           console.log(bug);
-                         },500);
-                      });
-                      
+                      res.json(sorted);
+                      res.end();
+                      console.log("");
                    }
-                });
-             });
+//hie de Timeout definiert, da weg de synchrone Usfüehrig ohni Timeout de Array nonig "gfüllt" wär...
+                },150);
+             });        
           });   
        }
        else {
