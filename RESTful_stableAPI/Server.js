@@ -40,7 +40,8 @@ app.post('/api/create', function(req, res) {
 //SALT'er
     var salter1 = rs.generate();
     var thepass = crypto.createHash('sha512').update(req.body.pass+salter1).digest('hex');
-    var number = User.count({username: usr}, function(err, c) {
+//RegEx sucht, dass statt nur usr auch Usr oder uSr etc. dazuzählen würden
+    var number = User.count({username: new RegExp('^'+usr+'$', "i")}, function(err, c) {
        if (c < 1) {
           var b = new User({ username: usr, pass: thepass, salter: salter1});
           b.save();
