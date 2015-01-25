@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 //DB-Connection aufbauen
-mongoose.connect('mongodb://test:test@proximus.modulusmongo.net:27017/tap4eXub');
+mongoose.connect('mongodb://APIServer:W5BTrStlHdfxbvSZVKK7KQzIDDyGEfeH@proximus.modulusmongo.net:27017/tap4eXub');
 
 //MongoDB-Schemas importieren
 var User = require('./model/Userschema2.js');
