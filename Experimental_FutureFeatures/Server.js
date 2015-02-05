@@ -16,6 +16,7 @@ var stat003 = "003 - Removing ok";
 var stat004 = "004 - No Todo with this ID found for you";
 var stat005 = "005 - User has no Todos";
 var stat006 = "006 - Logout ok";
+var stat007 = "007 - Groupname already taken";
 //chund evtl. no...
 //var stat007 = "007 - Shared User doesn't exist";
 
@@ -31,6 +32,7 @@ mongoose.connect('mongodb://Todoplus:7sijab3a3@proximus.modulusmongo.net:27017/h
 var User = require('./model/Userschema2.js');
 var Todo = require('./model/Todoschema2.js');
 var SSID = require('./model/SessionSchema.js');
+var Group = require('./model/GroupSchema.js');
 
 //User erstellen mit POST-Anfrage
 app.post('/api/create', function(req, res) {
@@ -143,31 +145,45 @@ app.post('/api', function(req, res) {
     var ssid = req.body.ssid;
     var text = req.body.text;
     var shared = req.body.shared;
+//    var grps = req.body.groups;
     var prior = req.body.prio;
     var number = SSID.count({ssid: ssid}, function(err, c) {
        if (c == 1) {
           SSID.findOne({ssid:ssid}, function(err, e) {  
              console.log("Der User " +e.username+ " hat POST angefordert");
-             console.log(stat000);
-             if (typeof shared!=='undefined') {
-                var b = new Todo({name: text, user: e.username, sharedw: shared, prio: prior});
-                b.save();
-                console.log("Added" + b);
-                console.log("");
-                res.json(Array(b));
-                res.end();   
-             }
-             else {
-                var ab = new Todo({name: text, user: e.username, sharedw: ""});
-                ab.save();
-                console.log("Added" + ab);
-                console.log("");
-                res.json(Array(ab));
-                res.end();  
-             }
+             console.log(stat000);  
+             console.log(grps);
+             var grps = req.body.groups;
+             console.log(grps);
+             grps = grps.split(/;/);
+             console.log(grps); 
+             grps.forEach(function (jedes) {
+                Group.find({groupname: jedes}, function (err, b) {
+                    if (b.members!== 'undefined') {
+                        shared = shared+b.members;
+                    }
+                });
+             });
+             setTimeout(function () {
+                if (typeof shared!=='undefined') {
+                    var b = new Todo({name: text, user: e.username, sharedw: shared, prio: prior});
+                    b.save();
+                    console.log("Added" + b);
+                    console.log("");
+                    res.json(Array(b));
+                    res.end();
+                }
+                else {
+                    var ab = new Todo({name: text, user: e.username, sharedw: ""});
+                    ab.save();
+                    console.log("Added" + ab);
+                    console.log("");
+                    res.json(Array(ab));
+                    res.end();  
+                }
+             },150);
           });  
        }
-       
        else {
           console.log(stat001);
           res.json(stat001);
@@ -367,6 +383,64 @@ app.put('/api/white/:SSID', function(req, res) {
        }
     });                         
 });
+
+//create Group w/ POST-Request
+app.post('/api/group', function (req, res) {
+    var ssid = req.body.ssid;
+    var mmbrs = req.body.members;
+    var grpnm = req.body.groupname;
+    var number = SSID.count({ssid: ssid}, function(err, c) {
+        if (c == 1) {
+            SSID.findOne({ssid:ssid}, function(err, e) { 
+                Group.count({groupname: grpnm}, function (err, grps) {
+                    if (grps < 1) { 
+                        console.log("Der User " +e.username+ " erstellt eine Gruppe");    
+                        var newgrp = new Group({owner: e.username, groupname: grpnm, members: mmbrs});
+                        newgrp.save();
+                        res.json(newgrp);
+                        res.end();
+                    }
+                    else {
+                        res.json(stat007);
+                        res.end();
+                    }
+                });  
+            });
+        }
+        else {
+            console.log(stat001);
+            res.json(stat001);
+            res.end();
+        }
+    });
+});
+
+//Get Groups for a User w/ the SSID
+app.get('/api/group', function (req, res) {
+    console.log("Somebody wants to know his groups");
+    var ssid = req.query.ssid;
+    var number = SSID.count({ssid: ssid}, function(err, c) {
+        if (c == 1) {
+            console.log(stat000);
+            SSID.findOne({ssid:ssid}, function(err, e) { 
+                Group.find({owner: e.username}, function (err, d) {
+                    Group.find({members: new RegExp(e.username+";", "i")}, function(err, f) {
+                        d.concat(f);
+                        res.json(d);
+                        res.end();
+                    });
+                });
+            });
+        }
+        else {
+            console.log(stat001);
+            console.log("");
+            res.json(stat001);
+            res.end();
+        }
+    });
+});
+
 
 //Welcome to the Jungle :D
 app.get('/', function (req, res) {
