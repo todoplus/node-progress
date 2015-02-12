@@ -152,16 +152,21 @@ app.post('/api', function(req, res) {
           SSID.findOne({ssid:ssid}, function(err, e) {  
              console.log("Der User " +e.username+ " hat POST angefordert");
              console.log(stat000);  
-             console.log(grps);
-             var grps = req.body.groups;
+             var grps = req.body.groups.toString();
              console.log(grps);
              grps = grps.split(/;/);
              console.log(grps); 
              grps.forEach(function (jedes) {
-                Group.find({groupname: jedes}, function (err, b) {
-                    if (b.members!== 'undefined') {
-                        shared = shared+b.members;
+                Group.findOne({groupname: jedes}, function (err, b) {
+                    if (typeof b.members!== 'undefined') {
+                        shared = shared.concat(b.members);
+                        console.log("Im not undefined: "+b.members)
                     }
+                    else {
+                    console.log("Im undefined: "+b.members);
+                    console.log(shared)
+                    }
+                    
                 });
              });
              setTimeout(function () {
@@ -181,7 +186,7 @@ app.post('/api', function(req, res) {
                     res.json(Array(ab));
                     res.end();  
                 }
-             },150);
+             },300);
           });  
        }
        else {

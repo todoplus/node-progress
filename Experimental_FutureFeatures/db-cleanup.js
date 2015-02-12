@@ -8,6 +8,7 @@ mongoose.connect('mongodb://Todoplus:7sijab3a3@proximus.modulusmongo.net:27017/h
 var User = require('./model/Userschema2.js');
 var Todo = require('./model/Todoschema2.js');
 var SSID = require('./model/Sessionschema.js');
+var Group = require('./model/GroupSchema.js');
 
 User.remove({}, function(err) { 
    console.log('User-collection removed') 
@@ -19,4 +20,7 @@ Todo.remove({}, function(err) {
 
 SSID.remove({}, function(err) { 
    console.log('SSID-collection removed') 
+});
+Group.remove({}, function(err) {
+   console.log('Group-Collection removed')
 });
