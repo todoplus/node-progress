@@ -397,7 +397,7 @@ app.post('/api/group', function (req, res) {
     var number = SSID.count({ssid: ssid}, function(err, c) {
         if (c == 1) {
             SSID.findOne({ssid:ssid}, function(err, e) { 
-                Group.count({groupname: grpnm}, function (err, grps) {
+                Group.count({groupname: new RegExp('^'+grpnm+'$', "i")}, function (err, grps) {
                     if (grps < 1) { 
                         console.log("Der User " +e.username+ " erstellt eine Gruppe");    
                         var newgrp = new Group({owner: e.username, groupname: grpnm, members: mmbrs});
