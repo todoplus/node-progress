@@ -154,21 +154,22 @@ app.post('/api', function(req, res) {
              console.log(stat000);  
              var grps = req.body.groups.toString();
              console.log(grps);
-             grps = grps.split(/;/);
-             console.log(grps); 
-             grps.forEach(function (jedes) {
-                Group.findOne({groupname: jedes}, function (err, b) {
-                    if (typeof b.members!== 'undefined') {
-                        shared = shared.concat(b.members);
-                        console.log("Im not undefined: "+b.members)
-                    }
-                    else {
-                    console.log("Im undefined: "+b.members);
-                    console.log(shared)
-                    }
-                    
+             if (grps!=="") {
+                grps = grps.split(/;/);
+                console.log(grps); 
+                grps.forEach(function (jedes) {
+                    Group.findOne({groupname: jedes}, function (err, b) {
+                        if (typeof b.members!== 'undefined') {
+                            shared = shared.concat(b.members);
+                            console.log("Im not undefined: "+b.members)
+                        }
+                        else {
+                            console.log("Im undefined: "+b.members);
+                            console.log(shared)
+                        }
+                    });
                 });
-             });
+             }
              setTimeout(function () {
                 if (typeof shared!=='undefined') {
                     var b = new Todo({name: text, user: e.username, sharedw: shared, prio: prior});
@@ -186,7 +187,7 @@ app.post('/api', function(req, res) {
                     res.json(Array(ab));
                     res.end();  
                 }
-             },300);
+             },150);
           });  
        }
        else {
