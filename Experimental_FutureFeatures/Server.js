@@ -17,6 +17,7 @@ var stat004 = "004 - No Todo with this ID found for you";
 var stat005 = "005 - User has no Todos";
 var stat006 = "006 - Logout ok";
 var stat007 = "007 - Groupname already taken";
+var stat008 = "008 - Group created successfully";
 //chund evtl. no...
 //var stat007 = "007 - Shared User doesn't exist";
 
@@ -403,7 +404,7 @@ app.post('/api/group', function (req, res) {
                         console.log("Der User " +e.username+ " erstellt eine Gruppe");    
                         var newgrp = new Group({owner: e.username, groupname: grpnm, members: mmbrs});
                         newgrp.save();
-                        res.json(newgrp);
+                        res.json(stat008);
                         res.end();
                     }
                     else {
