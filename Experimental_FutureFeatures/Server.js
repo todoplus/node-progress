@@ -448,6 +448,29 @@ app.get('/api/group', function (req, res) {
     });
 });
 
+app.get('/api/white', function (req, res) {
+    console.log("Somebody wants to know his Whitelist");
+    var ssid = req.query.ssid;
+    var number = SSID.count({ssid: ssid}, function(err, c) {
+        if (c == 1) {
+            console.log(stat000);
+            SSID.findOne({ssid:ssid}, function(err, e) { 
+                User.findOne({username: e.username}, function (err, d) {
+                    res.json(Array({"user": e.username, "white": d.white}));
+                    res.end();
+                    console.log("Whitelist sent");
+                    console.log("");
+                });
+            });
+        }
+        else {
+            console.log(stat001);
+            console.log("");
+            res.json(stat001);
+            res.end();
+        }
+    });
+});
 
 //Welcome to the Jungle :D
 app.get('/', function (req, res) {
