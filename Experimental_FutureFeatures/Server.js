@@ -260,7 +260,7 @@ app.put('/api/:Todo_id', function(req, res) {
 
 
 //delete
-app.delete('/api/:Todo_id/:User_ssid/', function(req, res) {
+app.delete('/api/:Todo_id/:User_ssid', function(req, res) {
    var id = req.params.Todo_id;
    var ssid = req.params.User_ssid;
 //login-überprüfung
@@ -456,7 +456,7 @@ app.get('/api/white', function (req, res) {
             console.log(stat000);
             SSID.findOne({ssid:ssid}, function(err, e) { 
                 User.findOne({username: e.username}, function (err, d) {
-                    res.json(Array({"user": e.username, "white": d.white}));
+                    res.json(Array({"white": d.white}));
                     res.end();
                     console.log("Whitelist sent");
                     console.log("");
@@ -480,5 +480,5 @@ app.get('/', function (req, res) {
     console.log("");
 });
 
-app.listen(process.env.PORT||8080);
+app.listen(process.env.PORT||8080, process.env.IP);
 console.log("Running on the Server and on Port 8080");
