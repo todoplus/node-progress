@@ -5,8 +5,17 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var us = require('underscore');
 var rs = require('randomstring');
+var http = require('https');
+var https = require('https');
+var fs = require('fs');
 //app expressfunktionen zuweisen
 var app = express();
+
+//tls
+//var options = {
+//    key: fs.readFileSync('./ssl/private.pem'),
+//    cert: fs.readFileSync('./ssl/public.pem'),
+//};
 
 //Status-Codes
 var stat000 = "000 - Login ok";
@@ -18,6 +27,9 @@ var stat005 = "005 - User has no Todos";
 var stat006 = "006 - Logout ok";
 var stat007 = "007 - Groupname already taken";
 var stat008 = "008 - Group created successfully";
+var stat009 = "009 - Group successfully removed";
+var stat010 = "010 - No such Group for you";
+var stat011 = "011 - Whitelist updated successfully";
 //chund evtl. no...
 //var stat007 = "007 - Shared User doesn't exist";
 
@@ -432,7 +444,7 @@ app.get('/api/group', function (req, res) {
             SSID.findOne({ssid:ssid}, function(err, e) { 
                 Group.find({owner: e.username}, function (err, d) {
                     Group.find({members: new RegExp(e.username+";", "i")}, function(err, f) {
-                        d.concat(f);
+                        d = d.concat(f);
                         res.json(d);
                         res.end();
                     });
@@ -456,7 +468,7 @@ app.get('/api/white', function (req, res) {
             console.log(stat000);
             SSID.findOne({ssid:ssid}, function(err, e) { 
                 User.findOne({username: e.username}, function (err, d) {
-                    res.json(Array({"white": d.white}));
+                    res.json(stat011);
                     res.end();
                     console.log("Whitelist sent");
                     console.log("");
@@ -472,6 +484,55 @@ app.get('/api/white', function (req, res) {
     });
 });
 
+//delete group
+app.delete('/api/group/:Group_name/:User_ssid', function(req, res) {
+   var grpnm = req.params.Group_name;
+   var ssid = req.params.User_ssid;
+//login-überprüfung
+    var number = SSID.count({ssid: ssid}, function(err, c) {
+    if (c == 1) {
+            SSID.findOne({ssid:ssid}, function(err, e) {  
+            console.log(stat000);
+            console.log("Der User" +e.username+" hat DELETE angefordert");
+//check ob todo mit dere id vorhande für de user
+            var number2 = Group.count({owner: e.username, groupname: grpnm}, function(err, d) {
+                if (d == 1) {
+                    Group.remove({groupname: grpnm}, function(err) {
+                        console.log(stat009);
+                        console.log("");
+                        res.json(stat009);
+                        res.end();
+                    });
+                }
+                else {
+                    var number2 = Group.count({groupname: grpnm, members: new RegExp(e.username+";", "i")}, function(err, f) {
+                        if (f == 1) {
+                            Group.remove({groupname: grpnm, members: new RegExp(e.username+";", "i")}, function(err) {
+                               console.log(stat009);
+                               console.log("");
+                               res.json(stat009);
+                               res.end();
+                             });            
+                        }
+                        else {
+                            console.log(stat010);
+                            console.log("");
+                            res.json(stat010);
+                            res.end();
+                       }
+                    });       
+                }
+            });
+         });
+       }                     
+       else {
+          console.log(stat001);
+          res.json(stat001);
+          res.end();
+       }
+    });
+});
+
 //Welcome to the Jungle :D
 app.get('/', function (req, res) {
     res.end("Welcome to the Jungle");
@@ -482,3 +543,7 @@ app.get('/', function (req, res) {
 
 app.listen(process.env.PORT||8080, process.env.IP);
 console.log("Running on the Server and on Port 8080");
+
+//var server = https.createServer(options,app)
+//var io = require('socket.io').listen(server);
+//server.listen(8080);
