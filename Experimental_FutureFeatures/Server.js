@@ -387,7 +387,7 @@ app.put('/api/white/:SSID', function(req, res) {
              User.findOne({username: e.username}, function (err, us) {
                 us.white = whitel;
                 us.save();
-                res.json(Array(us.white));
+                res.json(stat011);
                 res.end();
                 console.log("Updated the Whitelist for the user " +e.username); 
                 console.log("");  
@@ -468,7 +468,7 @@ app.get('/api/white', function (req, res) {
             console.log(stat000);
             SSID.findOne({ssid:ssid}, function(err, e) { 
                 User.findOne({username: e.username}, function (err, d) {
-                    res.json(stat011);
+                    res.json(Array({"white": d.white}));
                     res.end();
                     console.log("Whitelist sent");
                     console.log("");
